@@ -382,6 +382,20 @@ escapes it raises. Absolute paths are honoured because these nodes run on your
 own machine. `filename` is sanitized (path separators, Windows-illegal
 characters, reserved names).
 
+### Remote ComfyUI / RunPod
+
+The starter workflow's `video.mp4` is a placeholder and will fail until the
+file exists. Either:
+
+- upload the media to `<ComfyUI>/input` (on RunPod-Slim this is usually
+  `/workspace/runpod-slim/ComfyUI/input`) and set **Media Input → path** to its
+  filename or full path; or
+- set **Media Input → source_type** to `url` and paste a direct media URL.
+
+`python3 install.py` (run from the custom node folder with the Python that
+launches ComfyUI) installs the Python dependencies on the pod. FFmpeg must also
+be present.
+
 ## Recipes
 
 **1. Chinese subtitles with sentence timing**
@@ -432,7 +446,7 @@ roadmap in [DEVELOPMENT.md](DEVELOPMENT.md).
 |---|---|
 | `ffmpeg was not found` | Install FFmpeg, add it to `PATH`, or set `FFMPEG_BINARY`; restart ComfyUI. |
 | `FunASR is not available...` | Install FunASR in the exact interpreter shown in the message. |
-| `Media file not found: ... Looked in:` | The relative path is not in `ComfyUI/input`, output or the current directory. |
+| `Media file not found: ... Looked in:` | Put the file in `ComfyUI/input`, use an absolute path, or switch `source_type` to `url` with a direct media URL. |
 | `The URL returned 'text/html', not media` | It is a web page, not a media file. Use a direct URL or yt-dlp. |
 | `Download failed: HTTP 403/404` | The URL is private, expired or blocked; try a fresh direct link. |
 | `Download is X MB, above the N MB limit` | Raise `max_download_mb` or download outside ComfyUI. |

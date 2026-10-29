@@ -1,5 +1,5 @@
 {
-  "id": "e0936581-f4ba-48d0-a35a-9544acbcedb2",
+  "id": "61b84621-4901-474a-bf07-b8233f2c1d4c",
   "revision": 0,
   "last_node_id": 8,
   "last_link_id": 8,
@@ -669,7 +669,7 @@
       "title": "How to use",
       "properties": {},
       "widgets_values": [
-        "# Long recordings / SenseVoice\n\nThis variant adds VAD before transcription.\n\n- **VAD** uses the ffmpeg backend and cuts speech at pauses, with regions capped at 30 s.\n- **FunASR** runs `iic/SenseVoiceSmall` (fast, zh/en/yue/ja/ko) on each region. SenseVoice returns no timestamps, so the VAD regions provide the SRT timing (one cue per region).\n- For sentence-level Chinese timing, use the other starter (`paraformer-zh`, no VAD).\n\n## Tuning\n- Noisy room: raise `threshold_db` toward 0.\n- Quiet speech: lower `threshold_db`.\n- Long monologue: raise `max_segment_seconds` (VAD and FunASR).\n- `write_chunks` on VAD keeps each region as a WAV for inspection.\n\n## Output\n`ComfyUI/output/transcribe/chinese_transcript_vad.srt`\n\nChange **Format Transcript -> format** to `txt`, `json` or `vtt` as needed.\n"
+        "# Long recordings / SenseVoice\n\n> **Change `Media Input -> path` before queueing.** `video.mp4` is only a placeholder. It fails until that file exists in `ComfyUI/input` (or you switch to a direct URL).\n\nThis variant adds VAD before transcription.\n\n- **VAD** uses the ffmpeg backend and cuts speech at pauses, with regions capped at 30 s.\n- **FunASR** runs `iic/SenseVoiceSmall` (fast, zh/en/yue/ja/ko) on each region. SenseVoice returns no timestamps, so the VAD regions provide the SRT timing (one cue per region).\n- For sentence-level Chinese timing, use the other starter (`paraformer-zh`, no VAD).\n\n## Tuning\n- Noisy room: raise `threshold_db` toward 0.\n- Quiet speech: lower `threshold_db`.\n- Long monologue: raise `max_segment_seconds` (VAD and FunASR).\n- `write_chunks` on VAD keeps each region as a WAV for inspection.\n\n## Output\n`ComfyUI/output/transcribe/chinese_transcript_vad.srt`\n\nChange **Format Transcript -> format** to `txt`, `json` or `vtt` as needed.\n"
       ]
     }
   ],

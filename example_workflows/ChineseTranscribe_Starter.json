@@ -1,5 +1,5 @@
 {
-  "id": "2f601120-1997-4d28-9106-fcd1c64fa23c",
+  "id": "5dd827b3-9ad2-4541-a071-8770b9cf9881",
   "revision": 0,
   "last_node_id": 7,
   "last_link_id": 6,
@@ -536,7 +536,7 @@
       "title": "How to use",
       "properties": {},
       "widgets_values": [
-        "# Chinese transcription (FFmpeg + FunASR)\n\n## Before Queue\n1. Put the media file in `ComfyUI/input` and set **Media Input -> path** to its name (for example `video.mp4`), or enter an absolute path.\n2. For a direct URL: set **Media Input -> source_type** to `url`, paste the direct media URL, and clear or ignore `path`.\n3. Install FFmpeg. The first queue downloads the FunASR model weights (this can take several minutes).\n\n## Pipeline\nMedia Input -> Resolve Media -> Load Media -> FFmpeg Extract Audio -> FunASR Transcribe -> Format Transcript.\n\n- A local file is validated directly; a URL is downloaded to `output/transcribe/downloads`.\n- `paraformer-zh` (default here) returns sentence timestamps and punctuation, which SRT needs.\n- `iic/SenseVoiceSmall` is faster but returns no timestamps: use `txt`/`json`, or use the VAD starter for SRT.\n- `FunAudioLLM/Fun-ASR-Nano-2512` is a newer multilingual option without documented timestamps.\n\n## Output\n`ComfyUI/output/transcribe/chinese_transcript.srt`\n\nChange **Format Transcript -> format** to `txt`, `json` or `vtt`; the extension follows automatically. `max_line_chars` is a display width where Chinese characters count as 2.\n\nDirect URLs only: YouTube/Bilibili pages are HTML and are rejected. Use yt-dlp first.\n"
+        "# Chinese transcription (FFmpeg + FunASR)\n\n> **Change `Media Input -> path` before queueing.** `video.mp4` is only a placeholder. It fails until that file exists in `ComfyUI/input` (or you switch to a direct URL).\n\n## Before Queue\n1. Put the media file in `ComfyUI/input` and set **Media Input -> path** to its name (for example `video.mp4`), or enter an absolute path.\n2. For a direct URL: set **Media Input -> source_type** to `url`, paste the direct media URL, and clear or ignore `path`.\n3. Install FFmpeg. The first queue downloads the FunASR model weights (this can take several minutes).\n\n## Pipeline\nMedia Input -> Resolve Media -> Load Media -> FFmpeg Extract Audio -> FunASR Transcribe -> Format Transcript.\n\n- A local file is validated directly; a URL is downloaded to `output/transcribe/downloads`.\n- `paraformer-zh` (default here) returns sentence timestamps and punctuation, which SRT needs.\n- `iic/SenseVoiceSmall` is faster but returns no timestamps: use `txt`/`json`, or use the VAD starter for SRT.\n- `FunAudioLLM/Fun-ASR-Nano-2512` is a newer multilingual option without documented timestamps.\n\n## Output\n`ComfyUI/output/transcribe/chinese_transcript.srt`\n\nChange **Format Transcript -> format** to `txt`, `json` or `vtt`; the extension follows automatically. `max_line_chars` is a display width where Chinese characters count as 2.\n\nDirect URLs only: YouTube/Bilibili pages are HTML and are rejected. Use yt-dlp first.\n"
       ]
     }
   ],

@@ -117,7 +117,9 @@ def resolve_input_path(value) -> Path:
     searched = "\n  ".join(dict.fromkeys(tried))
     raise ValueError(
         f"Media file not found: '{text}'. Looked in:\n  {searched}\n"
-        "Run 'Resolve Media' or 'Download Media' first, or check the path."
+        "Put the file in ComfyUI/input and enter its filename, enter an "
+        "absolute path, or set Media Input's source_type to 'url' and use a "
+        "direct media URL."
     )
 
 
