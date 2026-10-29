@@ -14,6 +14,7 @@ lives in [README.md](README.md).
 | `nodes/media_input.py` | `Media Input`: source kind + URL/path → `CT_MEDIA_SOURCE`. |
 | `nodes/resolve_media.py` | `Resolve Media`: download-or-validate conditional router. |
 | `nodes/download_media.py` | `Download Media`: standalone direct-URL download. |
+| `nodes/download_ytdlp.py` | `Download Media (yt-dlp)`: platform page downloader (audio/video). |
 | `nodes/load_media.py` | `Load Media`: path validation + `CT_MEDIA_INFO` probe. |
 | `nodes/extract_audio.py` | `FFmpeg Extract Audio`: video/audio → PCM WAV. |
 | `nodes/vad.py` | `VAD`: speech regions with ffmpeg or FunASR. |
@@ -22,15 +23,16 @@ lives in [README.md](README.md).
 | `nodes/save_transcript.py` | `Save Transcript`: arbitrary text saving. |
 | `paths.py` | ComfyUI input/output roots, path resolution, filename safety. |
 | `media.py` | URL validation, streaming download, filename inference, ffprobe/PyAV inspection. |
+| `ytdlp_utils.py` | yt-dlp options, audio/video download, output-path resolution. |
 | `ffmpeg_utils.py` | Binary discovery, subprocess wrapper, extraction command builder, ffprobe JSON. |
 | `audio.py` | WAV info, duration, PCM slicing (wave module with ffmpeg fallback). |
 | `speech.py` | `silencedetect` parsing, region refinement, fsmn-vad wrapper, VAD backends. |
 | `funasr_utils.py` | Lazy FunASR import, actionable install error, device resolution. |
 | `asr.py` | Model cache, per-model `generate()` calls, chunking, result parsing. |
 | `transcript.py` | Character-timestamp grouping and subtitle/text formatting. |
-| `requirements.txt` | `requests` + `funasr`; FFmpeg is a system dependency. |
+| `requirements.txt` | `requests` + `funasr` + `yt-dlp`; FFmpeg is a system dependency. |
 | `install.py` | One-command installer: re-execs with ComfyUI's Python, runs pip, checks FFmpeg. |
-| `example_workflows/` | Starter graphs: `paraformer-zh` SRT and VAD + SenseVoice SRT. |
+| `example_workflows/` | Starter graphs: paraformer SRT, VAD + SenseVoice SRT, yt-dlp platform URL. |
 | `tests/` | Offline unittest suite (no network, no model downloads). |
 
 ### Runtime flow
@@ -39,6 +41,10 @@ lives in [README.md](README.md).
    `{"type": "file"|"url", "url": ..., "path": ..., "label": ...}`.
 2. `Resolve Media` branches on `type`: URLs go through `media.download_media()`,
    local files through `paths.resolve_input_path()`. Both return one path string.
+2b. `Download Media (yt-dlp)` is the platform-page alternative:
+   `ytdlp_utils.download_with_ytdlp()` uses yt-dlp to download the best audio
+   (converted to WAV) or best video+audio (merged to MP4), then the graph joins
+   at `Load Media`.
 3. `Load Media` probes with `ffprobe -show_format -show_streams` (PyAV fallback)
    and returns a JSON-friendly `CT_MEDIA_INFO` dict.
 4. `FFmpeg Extract Audio` runs
@@ -114,6 +120,20 @@ raises a clear error when unavailable. `cpu` is always honoured.
   complement of the reported silences over the probed duration.
 - `fsmn-vad` result: `[{"value": [[start_ms, end_ms], ...]}]`; converted to
   seconds, padded, merged and capped.
+
+### yt-dlp
+
+- Audio mode: `format="bestaudio/b"` plus the `FFmpegExtractAudio`
+  postprocessor with `preferredcodec="wav"`.
+- Video mode: `format="bv*+ba/b"` plus `merge_output_format="mp4"`.
+- Common options: `paths={"home": dest}`, `outtmpl`, `noplaylist`,
+  `overwrites`, `windowsfilenames`, optional `cookiefile`.
+- Output path resolution: `requested_downloads[].filepath`, then
+  `prepare_filename()`, then the `.wav` sibling, then the newest media file
+  with the same stem. This was smoke-tested against real yt-dlp using a local
+  HTTP server in both audio and video modes.
+- Site extractors change regularly; users should update yt-dlp when a platform
+  breaks.
 
 ## Custom types
 
@@ -246,15 +266,18 @@ All values are JSON-friendly.
   injects a fake `funasr` module to check constructor/generate arguments and
   VAD chunk offsets without downloading weights.
 - FFmpeg-dependent tests are skipped when `ffmpeg` is unavailable. The rest are
-  pure and fast (~0.5 s for 100 tests).
+  pure and fast (~0.5 s for 107 tests).
 - Coverage: filename safety and traversal, download streaming/HTML/size/HTTP
   errors, duration/unit formatting, `silencedetect` parsing, region
   refinement/capping, character-timestamp alignment with punctuation offsets,
   CJK-aware subtitle wrapping, SRT/VTT/TXT/JSON formatting, FunASR result
   shapes (whole/sentence/char), fake-FunASR model/generate arguments and chunk
-  offsets, widget order, `IS_CHANGED` keys, installer check mode and
-  versioned-venv detection, example workflow slot/widget/link validation, and
-  an end-to-end file→extract→VAD→SRT run with real FFmpeg.
+  offsets, yt-dlp options and download orchestration with a fake module,
+  widget order, `IS_CHANGED` keys, installer check mode and versioned-venv
+  detection, example workflow slot/widget/link validation, and an end-to-end
+  file→extract→VAD→SRT run with real FFmpeg.
+- Real yt-dlp path resolution was smoke-tested against a local HTTP server in
+  both audio and video modes; no external platform was contacted.
 
 ## Roadmap
 
@@ -270,10 +293,10 @@ All values are JSON-friendly.
    `sentence_timestamp=True` can misalign sentence splits. Compare
    `sentence_info` against the character-timestamp grouping fallback and pick
    the better one per model; consider making the grouping limits widgets.
-3. **Platform downloaders.** Add an optional yt-dlp-based node (or an optional
-   backend in Download Media) for YouTube/Bilibili/Xiaohongshu pages, keeping
-   the direct HTTP downloader unchanged and mandatory-cookie handling out of
-   the default path.
+3. **Harden yt-dlp.** The platform node is implemented with audio/video modes
+   and cookies. Verify Douyin/TikTok/YouTube/Bilibili extractors live, then add
+   an explicit proxy input and playlist selection (currently `noplaylist` and
+   the first entry). Keep the direct HTTP downloader unchanged.
 4. **Download robustness.** Resume partial downloads, retry transient HTTP
    failures, expose a progress bar from `download_media`, and support a
    `Referer`/cookie header for CDNs that require it.

@@ -1,6 +1,7 @@
 """ComfyUI node classes, one module per node."""
 
 from .download_media import ChineseTranscribeDownloadMedia
+from .download_ytdlp import ChineseTranscribeYtDlp
 from .extract_audio import ChineseTranscribeExtractAudio
 from .format_transcript import ChineseTranscribeFormatTranscript
 from .load_media import ChineseTranscribeLoadMedia
@@ -14,6 +15,7 @@ NODE_CLASS_MAPPINGS = {
     "ChineseTranscribeMediaInput": ChineseTranscribeMediaInput,
     "ChineseTranscribeResolveMedia": ChineseTranscribeResolveMedia,
     "ChineseTranscribeDownloadMedia": ChineseTranscribeDownloadMedia,
+    "ChineseTranscribeYtDlp": ChineseTranscribeYtDlp,
     "ChineseTranscribeLoadMedia": ChineseTranscribeLoadMedia,
     "ChineseTranscribeExtractAudio": ChineseTranscribeExtractAudio,
     "ChineseTranscribeVAD": ChineseTranscribeVAD,
@@ -26,6 +28,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ChineseTranscribeMediaInput": "Media Input (URL / File)",
     "ChineseTranscribeResolveMedia": "Resolve Media",
     "ChineseTranscribeDownloadMedia": "Download Media (Direct URL)",
+    "ChineseTranscribeYtDlp": "Download Media (yt-dlp)",
     "ChineseTranscribeLoadMedia": "Load Media (Probe)",
     "ChineseTranscribeExtractAudio": "FFmpeg Extract Audio",
     "ChineseTranscribeVAD": "VAD (Detect Speech)",
@@ -38,6 +41,7 @@ __all__ = [
     "NODE_CLASS_MAPPINGS",
     "NODE_DISPLAY_NAME_MAPPINGS",
     "ChineseTranscribeDownloadMedia",
+    "ChineseTranscribeYtDlp",
     "ChineseTranscribeExtractAudio",
     "ChineseTranscribeFormatTranscript",
     "ChineseTranscribeLoadMedia",

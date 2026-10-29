@@ -1,0 +1,542 @@
+{
+  "id": "4ad42e94-161c-448f-b9fd-242c786026a9",
+  "revision": 0,
+  "last_node_id": 6,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "ChineseTranscribeYtDlp",
+      "pos": [
+        60,
+        220
+      ],
+      "size": [
+        440,
+        340
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "url",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "url"
+          }
+        },
+        {
+          "name": "mode",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "mode"
+          }
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_dir"
+          }
+        },
+        {
+          "name": "filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename"
+          }
+        },
+        {
+          "name": "cookies_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "cookies_file"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "title",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "duration",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "title": "1. Download with yt-dlp",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeYtDlp"
+      },
+      "widgets_values": [
+        "",
+        "audio",
+        "transcribe/downloads",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ChineseTranscribeLoadMedia",
+      "pos": [
+        560,
+        220
+      ],
+      "size": [
+        360,
+        240
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "link": 1,
+          "widget": {
+            "name": "media_path"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "media_info",
+          "type": "CT_MEDIA_INFO",
+          "links": null
+        },
+        {
+          "name": "summary",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "2. Load Media (probe)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeLoadMedia"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 3,
+      "type": "ChineseTranscribeExtractAudio",
+      "pos": [
+        960,
+        220
+      ],
+      "size": [
+        400,
+        300
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "media_path"
+          }
+        },
+        {
+          "name": "sample_rate",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "sample_rate"
+          }
+        },
+        {
+          "name": "mono",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "mono"
+          }
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_dir"
+          }
+        },
+        {
+          "name": "filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio_path",
+          "type": "STRING",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "duration",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "sample_rate",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "title": "3. FFmpeg Extract Audio",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeExtractAudio"
+      },
+      "widgets_values": [
+        "",
+        "16000",
+        true,
+        "transcribe/audio",
+        ""
+      ]
+    },
+    {
+      "id": 4,
+      "type": "ChineseTranscribeFunASR",
+      "pos": [
+        1400,
+        120
+      ],
+      "size": [
+        440,
+        700
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio_path",
+          "type": "STRING",
+          "link": 3,
+          "widget": {
+            "name": "audio_path"
+          }
+        },
+        {
+          "name": "model",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        },
+        {
+          "name": "language",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "language"
+          }
+        },
+        {
+          "name": "use_itn",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "use_itn"
+          }
+        },
+        {
+          "name": "batch_size_s",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "batch_size_s"
+          }
+        },
+        {
+          "name": "max_segment_seconds",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "max_segment_seconds"
+          }
+        },
+        {
+          "name": "speech_segments",
+          "type": "CT_SPEECH_SEGMENTS",
+          "link": null
+        },
+        {
+          "name": "hotword",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "hotword"
+          }
+        },
+        {
+          "name": "hub",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "hub"
+          }
+        },
+        {
+          "name": "keep_chunks",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "keep_chunks"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "transcript",
+          "type": "STRING",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "segments",
+          "type": "CT_SEGMENTS",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "segment_count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "title": "4. FunASR Transcribe (paraformer-zh)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeFunASR"
+      },
+      "widgets_values": [
+        "",
+        "paraformer-zh",
+        "auto",
+        "zh",
+        true,
+        300,
+        30.0,
+        "",
+        "auto",
+        false
+      ]
+    },
+    {
+      "id": 5,
+      "type": "ChineseTranscribeFormatTranscript",
+      "pos": [
+        1880,
+        220
+      ],
+      "size": [
+        400,
+        460
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "transcript",
+          "type": "STRING",
+          "link": 4,
+          "widget": {
+            "name": "transcript"
+          }
+        },
+        {
+          "name": "segments",
+          "type": "CT_SEGMENTS",
+          "link": 5
+        },
+        {
+          "name": "format",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "format"
+          }
+        },
+        {
+          "name": "filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename"
+          }
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_dir"
+          }
+        },
+        {
+          "name": "max_line_chars",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "max_line_chars"
+          }
+        },
+        {
+          "name": "encoding",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "encoding"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "formatted_text",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "output_path",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "5. Format Transcript (SRT)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeFormatTranscript"
+      },
+      "widgets_values": [
+        "",
+        "srt",
+        "chinese_transcript_url",
+        "transcribe",
+        42,
+        "utf-8-sig"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "MarkdownNote",
+      "pos": [
+        60,
+        700
+      ],
+      "size": [
+        800,
+        680
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "How to use",
+      "properties": {},
+      "widgets_values": [
+        "# Platform URL -> Chinese transcript (yt-dlp)\n\n> Paste the **page URL** in **Download Media (yt-dlp)**, not a direct\n> video-only CDN link. Douyin/TikTok/YouTube/Bilibili often serve separate\n> video and audio tracks; yt-dlp resolves both.\n\n## Before Queue\n1. Paste the share/page URL, for example `https://www.douyin.com/video/...`,\n   `https://v.douyin.com/...`, `https://www.youtube.com/watch?v=...` or\n   `https://www.bilibili.com/video/...`.\n2. `mode = audio` downloads the best audio and converts it to WAV\n   (recommended for transcription). `mode = video` merges best video+audio\n   into an MP4.\n3. If the page needs a login or is region-locked, export a Netscape\n   `cookies.txt`, put it in `ComfyUI/input`, and set `cookies_file`.\n4. The first transcription downloads the FunASR model weights.\n\n## Pipeline\nyt-dlp -> Load Media -> FFmpeg Extract Audio -> FunASR (paraformer-zh) -> Format Transcript.\n\n- Use a direct CDN/video URL only if it contains audio; a video-only CDN link\n  will still fail with \"has no audio stream\".\n- If a site extractor breaks, update yt-dlp:\n  `python -m pip install -U yt-dlp` in ComfyUI's Python.\n\n## Output\n`ComfyUI/output/transcribe/chinese_transcript_url.srt`\n\nChange **Format Transcript -> format** to `txt`, `json` or `vtt` as needed.\n"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "STRING"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "STRING"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "STRING"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      0,
+      "STRING"
+    ],
+    [
+      5,
+      4,
+      1,
+      5,
+      1,
+      "CT_SEGMENTS"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6,
+      "offset": [
+        80,
+        60
+      ]
+    }
+  },
+  "version": 0.4
+}

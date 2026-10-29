@@ -1,18 +1,20 @@
 # Chinese video/audio transcription — ComfyUI nodes
 
-Takes a **direct video URL**, a **local video**, or a **local audio file** and
+Takes a **direct media URL**, a **platform page URL** (Douyin, TikTok, YouTube,
+Bilibili, ... via yt-dlp), a **local video**, or a **local audio file** and
 produces Chinese text with timestamps plus optional **TXT / JSON / SRT / VTT**
 subtitles. FFmpeg handles media, [FunASR](https://github.com/modelscope/FunASR)
 handles speech recognition. Transcription runs locally; the network is used only
 for the optional URL download and the first FunASR model download.
 
-Nine nodes are registered under **Audio → Transcribe**:
+Ten nodes are registered under **Audio → Transcribe**:
 
 | Node | Purpose |
 |---|---|
 | `Media Input (URL / File)` | Declare one source: a URL or a local path. |
 | `Resolve Media` | Conditional router: downloads URLs, validates local files. |
 | `Download Media (Direct URL)` | Standalone direct-URL download. |
+| `Download Media (yt-dlp)` | Platform page or media URL via yt-dlp (audio or muxed video). |
 | `Load Media (Probe)` | Validates a file and reports duration/streams/codecs. |
 | `FFmpeg Extract Audio` | Video/audio → PCM WAV (mono, 16 kHz by default). |
 | `VAD (Detect Speech)` | Finds speech regions; optional chunk WAVs. |
@@ -53,6 +55,12 @@ for URL-only graphs:
 Download Media ──media_path──> Load Media ──> FFmpeg Extract Audio ──> ...
 ```
 
+For platform pages, replace the downloader with yt-dlp:
+
+```
+Download Media (yt-dlp) ──media_path──> Load Media ──> FFmpeg Extract Audio ──> ...
+```
+
 VAD is optional. Without it, FunASR uses its own built-in `fsmn-vad`. Connect it
 when you want VAD chunking, split files, or **segment-level timing from models
 that do not return timestamps** (SenseVoice and Fun-ASR-Nano).
@@ -65,10 +73,12 @@ Ready-to-import graphs live in [`example_workflows/`](example_workflows/):
 |---|---|
 | [`ChineseTranscribe_Starter.json`](example_workflows/ChineseTranscribe_Starter.json) | Local file or direct URL → `paraformer-zh` → SRT with sentence timestamps. |
 | [`ChineseTranscribe_VAD_SenseVoice.json`](example_workflows/ChineseTranscribe_VAD_SenseVoice.json) | VAD → `SenseVoiceSmall` → SRT with one cue per speech region (long/noisy recordings). |
+| [`ChineseTranscribe_Platform_URL.json`](example_workflows/ChineseTranscribe_Platform_URL.json) | yt-dlp page URL → `paraformer-zh` → SRT (Douyin/TikTok/YouTube/Bilibili). |
 
-Drag a JSON onto the ComfyUI canvas (or **Workflow → Open**), set **Media
-Input → path**, and Queue. Both workflows use `video.mp4` as a placeholder and
-include a **How to use** note. See
+Drag a JSON onto the ComfyUI canvas (or **Workflow → Open**), set the media
+input, and Queue. The local/URL and VAD workflows use `video.mp4` as a
+placeholder; the platform workflow uses an empty page URL. Each graph includes
+a **How to use** note. See
 [`example_workflows/README.md`](example_workflows/README.md) for details.
 
 ## Install
@@ -133,12 +143,12 @@ setx FFPROBE_BINARY "C:\ffmpeg\bin\ffprobe.exe"
 If `ffprobe` is missing, media inspection falls back to PyAV, which ComfyUI
 bundles. Audio extraction and VAD still need `ffmpeg`.
 
-### Requirement 2: FunASR
+### Requirement 2: FunASR and yt-dlp
 
-`install.py` installs FunASR. To do it manually:
+`install.py` installs FunASR and yt-dlp. To do it manually:
 
 ```bash
-python -m pip install -U "funasr>=1.3.0"
+python -m pip install -U "funasr>=1.3.0" yt-dlp
 ```
 
 Use the interpreter that launches ComfyUI (for example
@@ -230,11 +240,32 @@ empty responses, oversized files and non-media content types are rejected.
 Outputs: `media_path` (STRING), `bytes` (INT). The file is written atomically
 (`.part` then rename).
 
+### Download Media (yt-dlp)
+
+| Input | Type | Default | Notes |
+|---|---|---|---|
+| `url` | STRING | empty | Platform **page** URL (Douyin/TikTok/YouTube/Bilibili) or a direct media URL. |
+| `mode` | combo | `audio` | `audio` = best audio → WAV; `video` = best video + audio → MP4. |
+| `output_dir` | STRING | `transcribe/downloads` | Output folder. |
+| `filename` | STRING | empty | Optional output stem; empty uses the video title and id. |
+| `cookies_file` (optional) | STRING | empty | Netscape `cookies.txt` for login/region-locked pages; relative to `ComfyUI/input`. |
+
+Outputs: `media_path` (STRING), `title` (STRING), `duration` (FLOAT).
+
+This uses [yt-dlp](https://github.com/yt-dlp/yt-dlp). Pass the page URL, not a
+video-only CDN link; yt-dlp resolves the separate video/audio tracks. `audio`
+mode is smaller and is the best choice for transcription. If a site extractor
+stops working, update it in ComfyUI's Python:
+`python -m pip install -U yt-dlp`.
+
+Cookies are sensitive: the file can contain account credentials. Keep it in
+`ComfyUI/input` and do not share workflows or logs that reference it.
+
 ### Load Media (Probe)
 
 | Input | Type | Default | Notes |
 |---|---|---|---|
-| `media_path` | STRING | empty | File from Resolve Media/Download Media or a local path. |
+| `media_path` | STRING | empty | File from Resolve Media, either Download Media node, or a local path. |
 
 Outputs: `media_path` (STRING), `media_info` (`CT_MEDIA_INFO`), `summary`
 (STRING, e.g. `clip.mp4 | 01:23 | 45.2 MB | h264 1920x1080 + aac 48000 Hz 2 ch`).
@@ -390,8 +421,10 @@ file exists. Either:
 
 - upload the media to `<ComfyUI>/input` (on RunPod-Slim this is usually
   `/workspace/runpod-slim/ComfyUI/input`) and set **Media Input → path** to its
-  filename or full path; or
-- set **Media Input → source_type** to `url` and paste a direct media URL.
+  filename or full path;
+- set **Media Input → source_type** to `url` and paste a direct media URL; or
+- use **Download Media (yt-dlp)** with the platform **page** URL (for Douyin,
+  TikTok, YouTube, Bilibili, ...).
 
 `python3 install.py` (run from the custom node folder with the Python that
 launches ComfyUI) installs the Python dependencies on the pod. FFmpeg must also
@@ -425,28 +458,41 @@ Raise `max_segment_seconds` on VAD to 30–60 s and keep it connected to FunASR.
 Each region is cut to a temporary WAV, transcribed, and its timestamps are
 offset back to the original timeline. Check `keep_chunks` to inspect the cuts.
 
-**5. Direct URL**
+**5. Platform page (Douyin/TikTok/YouTube/Bilibili)**
+
+```
+Download Media (yt-dlp, mode=audio) → Load Media → Extract Audio
+  → FunASR Transcribe (paraformer-zh) → Format Transcript (srt)
+```
+
+Use the **page URL**, not the video-only CDN link. If the page needs a login or
+is region-locked, provide a `cookies.txt`.
+
+**6. Direct URL**
 
 ```
 Media Input (source_type=url) → Resolve Media → Load Media → ...
 ```
 
 or paste the URL into `Download Media (Direct URL)` and keep using Load Media.
+Only direct media URLs work here; use the yt-dlp node for platform pages.
 
-## Direct URLs vs video-site pages
+## Direct URLs vs platform pages
 
-Only **direct media URLs** are supported. A YouTube/Bilibili/Twitter page
-returns HTML, which the downloader rejects with a clear message. Download those
-with [yt-dlp](https://github.com/yt-dlp/yt-dlp) first, then feed the local file
-through Media Input. Downloading platform streams inside the node is on the
-roadmap in [DEVELOPMENT.md](DEVELOPMENT.md).
+`Download Media (Direct URL)` and `Resolve Media` accept **direct media URLs**
+only. A YouTube/Bilibili/Twitter page returns HTML and is rejected with a clear
+message.
 
-Some platforms (Douyin, TikTok, YouTube) also serve **video-only** CDN links:
-the file downloads fine but has no audio stream. `Load Media` warns about this
-and `FFmpeg Extract Audio` fails with "has no audio stream". The URL is one
-DASH track, not the whole video. Use yt-dlp with the page URL to fetch a muxed
-file (`-f "bv*+ba/b"`) or just the audio (`-f "bestaudio/b" -x
---audio-format wav`), then use that file.
+Use **`Download Media (yt-dlp)`** for platform pages. It resolves the page,
+selects the separate video/audio streams and either extracts the audio to WAV
+or merges them to MP4. Pass the page URL (`douyin.com/video/...`,
+`v.douyin.com/...`, `youtube.com/watch?...`, `bilibili.com/video/...`).
+
+Some platforms also serve **video-only** CDN links: the file downloads fine but
+has no audio stream. `Load Media` warns about this and `FFmpeg Extract Audio`
+fails with "has no audio stream". That URL is one DASH track, not the whole
+video. The yt-dlp node with the page URL is the fix; a direct CDN link cannot
+recover the missing audio.
 
 ## Errors
 
@@ -464,7 +510,10 @@ file (`-f "bv*+ba/b"`) or just the audio (`-f "bestaudio/b" -x
 | `output_dir must stay inside ComfyUI's output directory` | Use a relative folder or an absolute path. |
 | `Cannot save the transcript as gbk` | The text contains characters outside GBK; use UTF-8. |
 | `The output WAV would overwrite the input media` | Pick another filename/output folder. |
-| `has no audio stream` | The download is a video-only DASH/CDN track. Use yt-dlp with the page URL to get a muxed file or the audio track. |
+| `has no audio stream` | The download is a video-only DASH/CDN track. Use the yt-dlp node with the **page** URL to get a muxed file or the audio track. |
+| `yt-dlp is not installed` | Run `python install.py`, or `python -m pip install -U yt-dlp` in ComfyUI's Python. |
+| `yt-dlp failed ... Sign in` | The page needs cookies. Export `cookies.txt` and set `cookies_file`. |
+| `yt-dlp failed ... video-only` | You passed a direct CDN link. Use the platform page URL. |
 | `contains no audio or video streams` | The file is not media (web page/archive/unsupported container). |
 
 Console lines are prefixed with `[Chinese Transcribe]` (model load time, device,
@@ -473,12 +522,15 @@ chunk counts, output paths).
 ## Limitations
 
 - No speaker diarization, translation, or word-level karaoke timing yet.
-- No upload widget; put files in `ComfyUI/input` or use URL download.
+- No upload widget; put files in `ComfyUI/input` or use a download node.
 - Cues come from the model's sentence/character timing; long sentences are
   wrapped for display, not re-timed.
 - The model returns text in the spoken language; `paraformer-zh` is Mandarin.
-- Cached URL downloads: change a download widget or delete the file to force a
+- Cached downloads: change a download widget or delete the file to force a
   fresh download.
+- yt-dlp site extractors change often; update it (`pip install -U yt-dlp`) if a
+  platform stops working. Login/region-locked pages may need a cookies file.
+- Live streams are not supported well; use a finished video/page URL.
 - Fun-ASR-Nano is newer and less battle-tested here; if its model id is
   rejected, update FunASR (`pip install -U funasr`).
 

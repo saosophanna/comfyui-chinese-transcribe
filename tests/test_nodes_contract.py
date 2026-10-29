@@ -25,6 +25,7 @@ EXPECTED_IDS = {
     "ChineseTranscribeMediaInput": "Media Input (URL / File)",
     "ChineseTranscribeResolveMedia": "Resolve Media",
     "ChineseTranscribeDownloadMedia": "Download Media (Direct URL)",
+    "ChineseTranscribeYtDlp": "Download Media (yt-dlp)",
     "ChineseTranscribeLoadMedia": "Load Media (Probe)",
     "ChineseTranscribeExtractAudio": "FFmpeg Extract Audio",
     "ChineseTranscribeVAD": "VAD (Detect Speech)",
@@ -41,6 +42,7 @@ EXPECTED_REQUIRED = {
     "ChineseTranscribeDownloadMedia": [
         "url", "output_dir", "max_download_mb", "timeout_seconds",
     ],
+    "ChineseTranscribeYtDlp": ["url", "mode", "output_dir", "filename"],
     "ChineseTranscribeLoadMedia": ["media_path"],
     "ChineseTranscribeExtractAudio": [
         "media_path", "sample_rate", "mono", "output_dir",
@@ -66,6 +68,7 @@ EXPECTED_OPTIONAL = {
     "ChineseTranscribeMediaInput": [],
     "ChineseTranscribeResolveMedia": ["filename"],
     "ChineseTranscribeDownloadMedia": ["filename"],
+    "ChineseTranscribeYtDlp": ["cookies_file"],
     "ChineseTranscribeLoadMedia": [],
     "ChineseTranscribeExtractAudio": ["filename"],
     "ChineseTranscribeVAD": ["write_chunks", "output_dir"],
