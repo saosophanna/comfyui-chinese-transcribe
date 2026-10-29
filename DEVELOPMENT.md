@@ -246,15 +246,15 @@ All values are JSON-friendly.
   injects a fake `funasr` module to check constructor/generate arguments and
   VAD chunk offsets without downloading weights.
 - FFmpeg-dependent tests are skipped when `ffmpeg` is unavailable. The rest are
-  pure and fast (~0.5 s for 99 tests).
+  pure and fast (~0.5 s for 100 tests).
 - Coverage: filename safety and traversal, download streaming/HTML/size/HTTP
   errors, duration/unit formatting, `silencedetect` parsing, region
   refinement/capping, character-timestamp alignment with punctuation offsets,
   CJK-aware subtitle wrapping, SRT/VTT/TXT/JSON formatting, FunASR result
   shapes (whole/sentence/char), fake-FunASR model/generate arguments and chunk
-  offsets, widget order, `IS_CHANGED` keys, installer check mode, example
-  workflow slot/widget/link validation, and an end-to-end
-  file→extract→VAD→SRT run with real FFmpeg.
+  offsets, widget order, `IS_CHANGED` keys, installer check mode and
+  versioned-venv detection, example workflow slot/widget/link validation, and
+  an end-to-end file→extract→VAD→SRT run with real FFmpeg.
 
 ## Roadmap
 

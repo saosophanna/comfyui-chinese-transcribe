@@ -37,11 +37,20 @@ def _comfy_python_candidates() -> list[Path]:
     comfy_root = HERE.parent.parent
     exe = "python.exe" if os.name == "nt" else "python"
     bin_dir = "Scripts" if os.name == "nt" else "bin"
-    return [
-        comfy_root / "python_embeded" / exe,
-        comfy_root / ".venv" / bin_dir / exe,
-        comfy_root / "venv" / bin_dir / exe,
-    ]
+    candidates = [comfy_root / "python_embeded" / exe]
+
+    # RunPod images use names such as .venv-cu128; desktop builds may use
+    # .venv or venv. Accept any versioned variant.
+    for pattern in (".venv*", "venv*"):
+        for base in sorted(comfy_root.glob(pattern)):
+            if base.is_dir():
+                candidates.append(base / bin_dir / exe)
+
+    unique: list[Path] = []
+    for candidate in candidates:
+        if candidate not in unique:
+            unique.append(candidate)
+    return unique
 
 
 def _is_comfy_python() -> bool:

@@ -70,7 +70,10 @@ class ChineseTranscribeExtractAudio:
         if not info.get("has_audio"):
             raise ValueError(
                 f"'{source.name}' has no audio stream, so there is nothing to "
-                "transcribe."
+                "transcribe. Video-only DASH/CDN downloads (common with "
+                "Douyin, TikTok and YouTube) keep the audio in a separate "
+                "track. Download the page with yt-dlp as a muxed file "
+                "(bv*+ba) or extract the audio track, then use that file."
             )
 
         stem = Path(source).stem

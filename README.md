@@ -87,7 +87,8 @@ That is the whole setup. Restart ComfyUI and the nodes appear under
 `install.py`:
 
 - re-executes itself with ComfyUI's bundled Python when it finds
-  `python_embeded`, `.venv` or `venv` next to `custom_nodes`;
+  `python_embeded`, `.venv*` (including RunPod's `.venv-cu128`) or `venv*`
+  next to `custom_nodes`;
 - installs `requirements.txt` with pip;
 - reports whether `ffmpeg` and `ffprobe` are available;
 - warns if pip changed the installed torch version.
@@ -440,6 +441,13 @@ with [yt-dlp](https://github.com/yt-dlp/yt-dlp) first, then feed the local file
 through Media Input. Downloading platform streams inside the node is on the
 roadmap in [DEVELOPMENT.md](DEVELOPMENT.md).
 
+Some platforms (Douyin, TikTok, YouTube) also serve **video-only** CDN links:
+the file downloads fine but has no audio stream. `Load Media` warns about this
+and `FFmpeg Extract Audio` fails with "has no audio stream". The URL is one
+DASH track, not the whole video. Use yt-dlp with the page URL to fetch a muxed
+file (`-f "bv*+ba/b"`) or just the audio (`-f "bestaudio/b" -x
+--audio-format wav`), then use that file.
+
 ## Errors
 
 | Message | Cause / fix |
@@ -456,6 +464,7 @@ roadmap in [DEVELOPMENT.md](DEVELOPMENT.md).
 | `output_dir must stay inside ComfyUI's output directory` | Use a relative folder or an absolute path. |
 | `Cannot save the transcript as gbk` | The text contains characters outside GBK; use UTF-8. |
 | `The output WAV would overwrite the input media` | Pick another filename/output folder. |
+| `has no audio stream` | The download is a video-only DASH/CDN track. Use yt-dlp with the page URL to get a muxed file or the audio track. |
 | `contains no audio or video streams` | The file is not media (web page/archive/unsupported container). |
 
 Console lines are prefixed with `[Chinese Transcribe]` (model load time, device,

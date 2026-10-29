@@ -54,7 +54,8 @@ class ChineseTranscribeLoadMedia:
         if not info.get("has_audio"):
             log(
                 "Warning: this file has no audio stream; FFmpeg Extract Audio "
-                "will fail."
+                "will fail. Video-only DASH/CDN downloads often omit audio; "
+                "use yt-dlp to fetch a muxed file or the audio track."
             )
         return (str(path), info, summary)
 
