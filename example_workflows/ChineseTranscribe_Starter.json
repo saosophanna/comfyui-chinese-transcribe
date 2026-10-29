@@ -1,0 +1,605 @@
+{
+  "id": "2f601120-1997-4d28-9106-fcd1c64fa23c",
+  "revision": 0,
+  "last_node_id": 7,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "ChineseTranscribeMediaInput",
+      "pos": [
+        60,
+        220
+      ],
+      "size": [
+        380,
+        210
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_type",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "source_type"
+          }
+        },
+        {
+          "name": "url",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "url"
+          }
+        },
+        {
+          "name": "path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "path"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "media_source",
+          "type": "CT_MEDIA_SOURCE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "source_type",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "1. Media Input (URL or file)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeMediaInput"
+      },
+      "widgets_values": [
+        "file",
+        "",
+        "video.mp4"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ChineseTranscribeResolveMedia",
+      "pos": [
+        480,
+        220
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "media_source",
+          "type": "CT_MEDIA_SOURCE",
+          "link": 1
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_dir"
+          }
+        },
+        {
+          "name": "max_download_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "max_download_mb"
+          }
+        },
+        {
+          "name": "timeout_seconds",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "timeout_seconds"
+          }
+        },
+        {
+          "name": "filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "source_kind",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "2. Resolve Media (download or validate)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeResolveMedia"
+      },
+      "widgets_values": [
+        "transcribe/downloads",
+        2048,
+        120,
+        ""
+      ]
+    },
+    {
+      "id": 3,
+      "type": "ChineseTranscribeLoadMedia",
+      "pos": [
+        900,
+        220
+      ],
+      "size": [
+        360,
+        240
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "media_path"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "media_info",
+          "type": "CT_MEDIA_INFO",
+          "links": null
+        },
+        {
+          "name": "summary",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "3. Load Media (probe)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeLoadMedia"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 4,
+      "type": "ChineseTranscribeExtractAudio",
+      "pos": [
+        1300,
+        220
+      ],
+      "size": [
+        400,
+        300
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "media_path",
+          "type": "STRING",
+          "link": 3,
+          "widget": {
+            "name": "media_path"
+          }
+        },
+        {
+          "name": "sample_rate",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "sample_rate"
+          }
+        },
+        {
+          "name": "mono",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "mono"
+          }
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_dir"
+          }
+        },
+        {
+          "name": "filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio_path",
+          "type": "STRING",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "duration",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "sample_rate",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "title": "4. FFmpeg Extract Audio",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeExtractAudio"
+      },
+      "widgets_values": [
+        "",
+        "16000",
+        true,
+        "transcribe/audio",
+        ""
+      ]
+    },
+    {
+      "id": 5,
+      "type": "ChineseTranscribeFunASR",
+      "pos": [
+        1740,
+        120
+      ],
+      "size": [
+        440,
+        700
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio_path",
+          "type": "STRING",
+          "link": 4,
+          "widget": {
+            "name": "audio_path"
+          }
+        },
+        {
+          "name": "model",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        },
+        {
+          "name": "language",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "language"
+          }
+        },
+        {
+          "name": "use_itn",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "use_itn"
+          }
+        },
+        {
+          "name": "batch_size_s",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "batch_size_s"
+          }
+        },
+        {
+          "name": "max_segment_seconds",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "max_segment_seconds"
+          }
+        },
+        {
+          "name": "speech_segments",
+          "type": "CT_SPEECH_SEGMENTS",
+          "link": null
+        },
+        {
+          "name": "hotword",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "hotword"
+          }
+        },
+        {
+          "name": "hub",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "hub"
+          }
+        },
+        {
+          "name": "keep_chunks",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "keep_chunks"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "transcript",
+          "type": "STRING",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "segments",
+          "type": "CT_SEGMENTS",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "segment_count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "title": "5. FunASR Transcribe (paraformer-zh)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeFunASR"
+      },
+      "widgets_values": [
+        "",
+        "paraformer-zh",
+        "auto",
+        "zh",
+        true,
+        300,
+        30.0,
+        "",
+        "auto",
+        false
+      ]
+    },
+    {
+      "id": 6,
+      "type": "ChineseTranscribeFormatTranscript",
+      "pos": [
+        2220,
+        220
+      ],
+      "size": [
+        400,
+        460
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "transcript",
+          "type": "STRING",
+          "link": 5,
+          "widget": {
+            "name": "transcript"
+          }
+        },
+        {
+          "name": "segments",
+          "type": "CT_SEGMENTS",
+          "link": 6
+        },
+        {
+          "name": "format",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "format"
+          }
+        },
+        {
+          "name": "filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename"
+          }
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_dir"
+          }
+        },
+        {
+          "name": "max_line_chars",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "max_line_chars"
+          }
+        },
+        {
+          "name": "encoding",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "encoding"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "formatted_text",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "output_path",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "6. Format Transcript (SRT)",
+      "properties": {
+        "Node name for S&R": "ChineseTranscribeFormatTranscript"
+      },
+      "widgets_values": [
+        "",
+        "srt",
+        "chinese_transcript",
+        "transcribe",
+        42,
+        "utf-8-sig"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "MarkdownNote",
+      "pos": [
+        60,
+        720
+      ],
+      "size": [
+        780,
+        620
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "How to use",
+      "properties": {},
+      "widgets_values": [
+        "# Chinese transcription (FFmpeg + FunASR)\n\n## Before Queue\n1. Put the media file in `ComfyUI/input` and set **Media Input -> path** to its name (for example `video.mp4`), or enter an absolute path.\n2. For a direct URL: set **Media Input -> source_type** to `url`, paste the direct media URL, and clear or ignore `path`.\n3. Install FFmpeg. The first queue downloads the FunASR model weights (this can take several minutes).\n\n## Pipeline\nMedia Input -> Resolve Media -> Load Media -> FFmpeg Extract Audio -> FunASR Transcribe -> Format Transcript.\n\n- A local file is validated directly; a URL is downloaded to `output/transcribe/downloads`.\n- `paraformer-zh` (default here) returns sentence timestamps and punctuation, which SRT needs.\n- `iic/SenseVoiceSmall` is faster but returns no timestamps: use `txt`/`json`, or use the VAD starter for SRT.\n- `FunAudioLLM/Fun-ASR-Nano-2512` is a newer multilingual option without documented timestamps.\n\n## Output\n`ComfyUI/output/transcribe/chinese_transcript.srt`\n\nChange **Format Transcript -> format** to `txt`, `json` or `vtt`; the extension follows automatically. `max_line_chars` is a display width where Chinese characters count as 2.\n\nDirect URLs only: YouTube/Bilibili pages are HTML and are rejected. Use yt-dlp first.\n"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "CT_MEDIA_SOURCE"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "STRING"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "STRING"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      0,
+      "STRING"
+    ],
+    [
+      5,
+      5,
+      0,
+      6,
+      0,
+      "STRING"
+    ],
+    [
+      6,
+      5,
+      1,
+      6,
+      1,
+      "CT_SEGMENTS"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6,
+      "offset": [
+        80,
+        60
+      ]
+    }
+  },
+  "version": 0.4
+}

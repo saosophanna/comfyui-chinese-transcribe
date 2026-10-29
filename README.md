@@ -57,6 +57,20 @@ VAD is optional. Without it, FunASR uses its own built-in `fsmn-vad`. Connect it
 when you want VAD chunking, split files, or **segment-level timing from models
 that do not return timestamps** (SenseVoice and Fun-ASR-Nano).
 
+## Example workflows
+
+Ready-to-import graphs live in [`example_workflows/`](example_workflows/):
+
+| File | Pipeline |
+|---|---|
+| [`ChineseTranscribe_Starter.json`](example_workflows/ChineseTranscribe_Starter.json) | Local file or direct URL → `paraformer-zh` → SRT with sentence timestamps. |
+| [`ChineseTranscribe_VAD_SenseVoice.json`](example_workflows/ChineseTranscribe_VAD_SenseVoice.json) | VAD → `SenseVoiceSmall` → SRT with one cue per speech region (long/noisy recordings). |
+
+Drag a JSON onto the ComfyUI canvas (or **Workflow → Open**), set **Media
+Input → path**, and Queue. Both workflows use `video.mp4` as a placeholder and
+include a **How to use** note. See
+[`example_workflows/README.md`](example_workflows/README.md) for details.
+
 ## Install
 
 In `ComfyUI/custom_nodes`:

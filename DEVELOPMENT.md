@@ -30,6 +30,7 @@ lives in [README.md](README.md).
 | `transcript.py` | Character-timestamp grouping and subtitle/text formatting. |
 | `requirements.txt` | `requests` + `funasr`; FFmpeg is a system dependency. |
 | `install.py` | One-command installer: re-execs with ComfyUI's Python, runs pip, checks FFmpeg. |
+| `example_workflows/` | Starter graphs: `paraformer-zh` SRT and VAD + SenseVoice SRT. |
 | `tests/` | Offline unittest suite (no network, no model downloads). |
 
 ### Runtime flow
@@ -245,14 +246,15 @@ All values are JSON-friendly.
   injects a fake `funasr` module to check constructor/generate arguments and
   VAD chunk offsets without downloading weights.
 - FFmpeg-dependent tests are skipped when `ffmpeg` is unavailable. The rest are
-  pure and fast (~0.4 s for 96 tests).
+  pure and fast (~0.5 s for 99 tests).
 - Coverage: filename safety and traversal, download streaming/HTML/size/HTTP
   errors, duration/unit formatting, `silencedetect` parsing, region
   refinement/capping, character-timestamp alignment with punctuation offsets,
   CJK-aware subtitle wrapping, SRT/VTT/TXT/JSON formatting, FunASR result
   shapes (whole/sentence/char), fake-FunASR model/generate arguments and chunk
-  offsets, widget order, `IS_CHANGED` keys, installer check mode, and an
-  end-to-end file→extract→VAD→SRT run with real FFmpeg.
+  offsets, widget order, `IS_CHANGED` keys, installer check mode, example
+  workflow slot/widget/link validation, and an end-to-end
+  file→extract→VAD→SRT run with real FFmpeg.
 
 ## Roadmap
 
@@ -296,6 +298,6 @@ All values are JSON-friendly.
 ### Repo and quality
 
 12. Add `pyproject.toml` with ComfyUI Registry metadata and a `CHANGELOG.md`.
-13. Add `example_workflows/` with local-file and URL starter JSON graphs.
-14. Wire the suite into CI (syntax check, unit tests, widget-order snapshot).
-15. Add PyAV-probe and live-download tests behind opt-in environment flags.
+13. Wire the suite into CI (syntax check, unit tests, widget-order snapshot,
+    example-workflow validation).
+14. Add PyAV-probe and live-download tests behind opt-in environment flags.
