@@ -22,7 +22,7 @@ lives in [README.md](README.md).
 | `nodes/format_transcript.py` | `Format Transcript`: TXT/JSON/SRT/VTT writing. |
 | `nodes/save_transcript.py` | `Save Transcript`: arbitrary text saving. |
 | `paths.py` | ComfyUI input/output roots, path resolution, filename safety. |
-| `media.py` | URL validation, streaming download, filename inference, ffprobe/PyAV inspection. |
+| `media.py` | URL validation, streaming download, filename inference, ffprobe/PyAV inspection, download audio guard. |
 | `ytdlp_utils.py` | yt-dlp options, audio/video download, output-path resolution. |
 | `ffmpeg_utils.py` | Binary discovery, subprocess wrapper, extraction command builder, ffprobe JSON. |
 | `audio.py` | WAV info, duration, PCM slicing (wave module with ffmpeg fallback). |
@@ -40,7 +40,10 @@ lives in [README.md](README.md).
 1. `Media Input` validates the selected widget and returns
    `{"type": "file"|"url", "url": ..., "path": ..., "label": ...}`.
 2. `Resolve Media` branches on `type`: URLs go through `media.download_media()`,
-   local files through `paths.resolve_input_path()`. Both return one path string.
+   local files through `paths.resolve_input_path()`. URL downloads are then
+   checked with `media.require_audio_stream()`, which rejects a video-only track
+   at the download node; local files are validated by `Load Media`. Both return
+   one path string.
 2b. `Download Media (yt-dlp)` is the platform-page alternative:
    `ytdlp_utils.download_with_ytdlp()` uses yt-dlp to download the best audio
    (converted to WAV) or best video+audio (merged to MP4), then the graph joins
@@ -266,9 +269,10 @@ All values are JSON-friendly.
   injects a fake `funasr` module to check constructor/generate arguments and
   VAD chunk offsets without downloading weights.
 - FFmpeg-dependent tests are skipped when `ffmpeg` is unavailable. The rest are
-  pure and fast (~0.5 s for 107 tests).
+  pure and fast (~0.6 s for 115 tests).
 - Coverage: filename safety and traversal, download streaming/HTML/size/HTTP
-  errors, duration/unit formatting, `silencedetect` parsing, region
+  errors, downloaded-file audio guards, duration/unit formatting,
+  `silencedetect` parsing, region
   refinement/capping, character-timestamp alignment with punctuation offsets,
   CJK-aware subtitle wrapping, SRT/VTT/TXT/JSON formatting, FunASR result
   shapes (whole/sentence/char), fake-FunASR model/generate arguments and chunk

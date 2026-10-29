@@ -19,7 +19,8 @@ class ChineseTranscribeDownloadMedia:
         "Download a direct media URL (mp4, mkv, webm, mp3, wav, m4a, ...). "
         "Web pages from YouTube, Bilibili and similar sites are not media "
         "URLs; download those with yt-dlp first. HTML responses and oversized "
-        "files are rejected."
+        "files are rejected, and the saved file is probed so a video-only "
+        "track (no audio stream) fails here instead of at extraction."
     )
 
     @classmethod
@@ -70,6 +71,7 @@ class ChineseTranscribeDownloadMedia:
             f"Saved {media.human_size(result['bytes'])} to {result['path']} "
             f"({result['content_type']})"
         )
+        media.require_audio_stream(result["path"], source=text)
         return (result["path"], int(result["bytes"]))
 
 

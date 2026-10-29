@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 PACKAGE_NAME = "comfyui-chinese-transcribe"
 
 # Console prefix used by the node layer and the helpers.

@@ -12,8 +12,8 @@ Ten nodes are registered under **Audio → Transcribe**:
 | Node | Purpose |
 |---|---|
 | `Media Input (URL / File)` | Declare one source: a URL or a local path. |
-| `Resolve Media` | Conditional router: downloads URLs, validates local files. |
-| `Download Media (Direct URL)` | Standalone direct-URL download. |
+| `Resolve Media` | Conditional router: downloads URLs (audio-checked), validates local files. |
+| `Download Media (Direct URL)` | Standalone direct-URL download (audio-checked). |
 | `Download Media (yt-dlp)` | Platform page or media URL via yt-dlp (audio or muxed video). |
 | `Load Media (Probe)` | Validates a file and reports duration/streams/codecs. |
 | `FFmpeg Extract Audio` | Video/audio → PCM WAV (mono, 16 kHz by default). |
@@ -225,7 +225,9 @@ A local file is validated when this node runs, so a typo fails early.
 Outputs: `media_path` (STRING), `source_kind` (`url` / `file`).
 
 URLs are downloaded; local files bypass the download entirely. HTML responses,
-empty responses, oversized files and non-media content types are rejected.
+empty responses, oversized files and non-media content types are rejected. The
+saved file is then probed for an audio stream, so a video-only DASH/CDN track
+fails here with "is a video-only track" instead of later at extraction.
 
 ### Download Media (Direct URL)
 
@@ -238,7 +240,7 @@ empty responses, oversized files and non-media content types are rejected.
 | `filename` (optional) | STRING | empty | Override the filename. |
 
 Outputs: `media_path` (STRING), `bytes` (INT). The file is written atomically
-(`.part` then rename).
+(`.part` then rename) and probed for an audio stream before the node returns.
 
 ### Download Media (yt-dlp)
 
@@ -271,7 +273,8 @@ Outputs: `media_path` (STRING), `media_info` (`CT_MEDIA_INFO`), `summary`
 (STRING, e.g. `clip.mp4 | 01:23 | 45.2 MB | h264 1920x1080 + aac 48000 Hz 2 ch`).
 
 Uses `ffprobe -show_format -show_streams`; falls back to PyAV if ffprobe is
-missing. Warns when the file has no audio stream.
+missing. Warns when the file has no audio stream; URL downloads are already
+rejected by the download nodes before they reach this point.
 
 ### FFmpeg Extract Audio
 
@@ -489,10 +492,11 @@ or merges them to MP4. Pass the page URL (`douyin.com/video/...`,
 `v.douyin.com/...`, `youtube.com/watch?...`, `bilibili.com/video/...`).
 
 Some platforms also serve **video-only** CDN links: the file downloads fine but
-has no audio stream. `Load Media` warns about this and `FFmpeg Extract Audio`
-fails with "has no audio stream". That URL is one DASH track, not the whole
-video. The yt-dlp node with the page URL is the fix; a direct CDN link cannot
-recover the missing audio.
+has no audio stream. `Resolve Media` and `Download Media (Direct URL)` probe the
+saved file and reject it with "is a video-only track"; local files still get a
+`Load Media` warning, and `FFmpeg Extract Audio` fails if one reaches it. That
+URL is one DASH track, not the whole video. The yt-dlp node with the page URL is
+the fix; a direct CDN link cannot recover the missing audio.
 
 ## Errors
 
@@ -510,7 +514,7 @@ recover the missing audio.
 | `output_dir must stay inside ComfyUI's output directory` | Use a relative folder or an absolute path. |
 | `Cannot save the transcript as gbk` | The text contains characters outside GBK; use UTF-8. |
 | `The output WAV would overwrite the input media` | Pick another filename/output folder. |
-| `has no audio stream` | The download is a video-only DASH/CDN track. Use the yt-dlp node with the **page** URL to get a muxed file or the audio track. |
+| `is a video-only track` / `has no audio stream` | The input is a video-only DASH/CDN track with no audio. The URL download nodes reject it immediately; for local files `FFmpeg Extract Audio` reports it. Use the yt-dlp node with the **page** URL. |
 | `yt-dlp is not installed` | Run `python install.py`, or `python -m pip install -U yt-dlp` in ComfyUI's Python. |
 | `yt-dlp failed ... Sign in` | The page needs cookies. Export `cookies.txt` and set `cookies_file`. |
 | `yt-dlp failed ... video-only` | You passed a direct CDN link. Use the platform page URL. |

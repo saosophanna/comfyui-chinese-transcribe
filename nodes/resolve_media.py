@@ -17,8 +17,9 @@ class ChineseTranscribeResolveMedia:
     FUNCTION = "resolve"
     DESCRIPTION = (
         "Conditional router for a MEDIA_SOURCE. A URL is downloaded to the "
-        "output folder; a local path is validated. Both routes return one "
-        "media file path, so the rest of the graph has a single flow."
+        "output folder and probed for an audio stream; a local path is "
+        "validated. Both routes return one media file path, so the rest of "
+        "the graph has a single flow."
     )
 
     @classmethod
@@ -70,6 +71,7 @@ class ChineseTranscribeResolveMedia:
                 f"Resolved URL -> {result['path']} "
                 f"({media.human_size(result['bytes'])})"
             )
+            media.require_audio_stream(result["path"], source=url)
             return (result["path"], "url")
 
         if kind != "file":

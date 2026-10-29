@@ -5,6 +5,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from _loader import load_module
 
@@ -165,6 +166,54 @@ class DownloadTests(unittest.TestCase):
                 media.download_media("https://example.com/x", tmp,
                                      session=session, max_mb=1)
             self.assertIn("403", str(caught.exception))
+
+
+class AudioGuardTests(unittest.TestCase):
+    def test_video_only_download_is_rejected(self):
+        info = {
+            "has_audio": False,
+            "has_video": True,
+            "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "media-video-hvc1.mp4"
+            path.write_bytes(b"\0" * 32)
+            with mock.patch.object(media, "probe_media", return_value=info):
+                with self.assertRaises(ValueError) as caught:
+                    media.require_audio_stream(
+                        path, source="https://cdn.example/v.mp4?sign=secret"
+                    )
+
+        message = str(caught.exception)
+        self.assertIn("video-only", message)
+        self.assertIn("https://cdn.example/v.mp4", message)
+        self.assertNotIn("sign=secret", message)
+        self.assertIn("Download Media (yt-dlp)", message)
+
+    def test_audio_stream_is_returned_unchanged(self):
+        info = {"has_audio": True, "has_video": False, "format": "wav"}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "clip.wav"
+            path.write_bytes(b"RIFF")
+            with mock.patch.object(media, "probe_media", return_value=info):
+                self.assertIs(
+                    media.require_audio_stream(
+                        path, source="https://example.com/clip.wav"
+                    ),
+                    info,
+                )
+
+    def test_container_without_av_streams_is_rejected(self):
+        info = {"has_audio": False, "has_video": False, "format": "data"}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "download.bin"
+            path.write_bytes(b"\0" * 32)
+            with mock.patch.object(media, "probe_media", return_value=info):
+                with self.assertRaises(ValueError) as caught:
+                    media.require_audio_stream(
+                        path, source="https://example.com/download.bin"
+                    )
+        self.assertIn("no audio or video streams", str(caught.exception))
 
 
 class SummaryTests(unittest.TestCase):

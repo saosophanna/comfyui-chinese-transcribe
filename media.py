@@ -239,6 +239,39 @@ def summarize_media_info(info: dict) -> str:
     return " | ".join(parts)
 
 
+def require_audio_stream(path, *, source: str = "") -> dict:
+    """Probe a downloaded file and reject media that has no audio.
+
+    Direct downloads of DASH/CDN links often save a video-only track. Checking
+    here fails at the URL node, before the graph reaches extraction, and names
+    the input URL so the user knows which link to replace.
+    """
+    info = probe_media(path)
+    if info.get("has_audio"):
+        return info
+
+    source_text = to_text(source).strip()
+    label = display_url(source_text) if source_text else ""
+    location = f" from {label}" if label else ""
+    name = Path(path).name
+
+    if info.get("has_video"):
+        raise ValueError(
+            f"The downloaded file{location} ({name}) is a video-only track: it "
+            "has no audio stream, so there is nothing to transcribe. DASH/CDN "
+            "links (common with Douyin, TikTok and YouTube) keep the audio in "
+            "a separate stream. Use the platform page URL with Download Media "
+            "(yt-dlp) in audio mode, or a direct URL whose file includes audio."
+        )
+
+    raise ValueError(
+        f"The downloaded file{location} ({name}) contains no audio or video "
+        f"streams (detected format: {info.get('format') or 'unknown'}), so "
+        "there is nothing to transcribe. It may be a web page, an archive or "
+        "an unsupported container."
+    )
+
+
 def download_media(url, dest_dir, *, filename: str = "",
                    max_mb: int = config.DEFAULT_DOWNLOAD_MAX_MB,
                    timeout: int = config.DEFAULT_DOWNLOAD_TIMEOUT,
@@ -491,6 +524,7 @@ __all__ = [
     "looks_like_html",
     "make_media_source",
     "probe_media",
+    "require_audio_stream",
     "source_kind",
     "summarize_media_info",
 ]
