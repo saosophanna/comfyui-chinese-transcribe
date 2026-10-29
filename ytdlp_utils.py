@@ -8,8 +8,10 @@ merges them (or extracts the audio).
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from . import config, paths
 from .media import display_url
@@ -24,8 +26,37 @@ _MEDIA_SUFFIXES = {
 }
 
 
+_DOUYIN_HOST = "douyin.com"
+_DOUYIN_VIDEO_PATH = re.compile(r"^/video/\d+/?$")
+
+
 class YtDlpError(RuntimeError):
     """yt-dlp is unavailable or a download failed."""
+
+
+def normalize_url(url) -> str:
+    """Rewrite page URLs that yt-dlp's extractors do not match directly.
+
+    Douyin's feed modal links (``/jingxuan?modal_id=<id>``, ``/discover?...``)
+    carry the video id in the query, while yt-dlp's Douyin extractor only
+    matches ``https://www.douyin.com/video/<id>``. Everything else is returned
+    unchanged.
+    """
+    text = to_text(url).strip()
+    if not text:
+        return text
+
+    parsed = urlparse(text)
+    host = (parsed.hostname or "").lower()
+    if host != _DOUYIN_HOST and not host.endswith("." + _DOUYIN_HOST):
+        return text
+    if _DOUYIN_VIDEO_PATH.match(parsed.path):
+        return text
+
+    modal_id = (parse_qs(parsed.query).get("modal_id") or [""])[0].strip()
+    if modal_id.isdigit():
+        return f"https://www.douyin.com/video/{modal_id}"
+    return text
 
 
 def require_ytdlp():
@@ -85,7 +116,7 @@ def _output_template(filename: str) -> str:
 def download_with_ytdlp(url, dest_dir, *, mode: str = DEFAULT_MODE,
                         filename: str = "", cookies_file=None) -> dict:
     """Download a page or media URL and return the resulting media path."""
-    text = to_text(url).strip()
+    text = normalize_url(url)
     if not text:
         raise YtDlpError("url is empty. Paste a platform page or media URL.")
 
@@ -207,5 +238,6 @@ __all__ = [
     "YtDlpError",
     "build_options",
     "download_with_ytdlp",
+    "normalize_url",
     "require_ytdlp",
 ]

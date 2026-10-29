@@ -260,6 +260,12 @@ mode is smaller and is the best choice for transcription. If a site extractor
 stops working, update it in ComfyUI's Python:
 `python -m pip install -U yt-dlp`.
 
+Douyin feed/modal links (`douyin.com/jingxuan?modal_id=<id>`,
+`douyin.com/discover?modal_id=<id>`) are rewritten automatically to
+`https://www.douyin.com/video/<id>`, which is the form yt-dlp matches. Douyin
+asks for cookies even for public videos: export a Netscape `cookies.txt` for
+`douyin.com` and set `cookies_file`.
+
 Cookies are sensitive: the file can contain account credentials. Keep it in
 `ComfyUI/input` and do not share workflows or logs that reference it.
 
@@ -516,7 +522,8 @@ the fix; a direct CDN link cannot recover the missing audio.
 | `The output WAV would overwrite the input media` | Pick another filename/output folder. |
 | `is a video-only track` / `has no audio stream` | The input is a video-only DASH/CDN track with no audio. The URL download nodes reject it immediately; for local files `FFmpeg Extract Audio` reports it. Use the yt-dlp node with the **page** URL. |
 | `yt-dlp is not installed` | Run `python install.py`, or `python -m pip install -U yt-dlp` in ComfyUI's Python. |
-| `yt-dlp failed ... Sign in` | The page needs cookies. Export `cookies.txt` and set `cookies_file`. |
+| `yt-dlp failed ... Sign in` / `Fresh cookies ... are needed` | The page needs cookies (Douyin requires them even for public videos). Export a Netscape `cookies.txt` and set `cookies_file`. |
+| `yt-dlp failed ... Unsupported URL` | yt-dlp does not recognize that page form. Use the canonical video page, e.g. `https://www.douyin.com/video/<id>` (Douyin `?modal_id=...` links are normalized automatically). |
 | `yt-dlp failed ... video-only` | You passed a direct CDN link. Use the platform page URL. |
 | `contains no audio or video streams` | The file is not media (web page/archive/unsupported container). |
 

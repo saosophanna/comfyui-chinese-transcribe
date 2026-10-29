@@ -131,6 +131,9 @@ raises a clear error when unavailable. `cpu` is always honoured.
 - Video mode: `format="bv*+ba/b"` plus `merge_output_format="mp4"`.
 - Common options: `paths={"home": dest}`, `outtmpl`, `noplaylist`,
   `overwrites`, `windowsfilenames`, optional `cookiefile`.
+- URL normalization: Douyin feed/modal URLs with a numeric `modal_id` query
+  value are rewritten to `https://www.douyin.com/video/<id>`, the only form the
+  Douyin extractor matches. Other URLs pass through unchanged.
 - Output path resolution: `requested_downloads[].filepath`, then
   `prepare_filename()`, then the `.wav` sibling, then the newest media file
   with the same stem. This was smoke-tested against real yt-dlp using a local
@@ -269,10 +272,10 @@ All values are JSON-friendly.
   injects a fake `funasr` module to check constructor/generate arguments and
   VAD chunk offsets without downloading weights.
 - FFmpeg-dependent tests are skipped when `ffmpeg` is unavailable. The rest are
-  pure and fast (~0.6 s for 115 tests).
+  pure and fast (~0.5 s for 119 tests).
 - Coverage: filename safety and traversal, download streaming/HTML/size/HTTP
-  errors, downloaded-file audio guards, duration/unit formatting,
-  `silencedetect` parsing, region
+  errors, downloaded-file audio guards, yt-dlp URL normalization, duration/unit
+  formatting, `silencedetect` parsing, region
   refinement/capping, character-timestamp alignment with punctuation offsets,
   CJK-aware subtitle wrapping, SRT/VTT/TXT/JSON formatting, FunASR result
   shapes (whole/sentence/char), fake-FunASR model/generate arguments and chunk

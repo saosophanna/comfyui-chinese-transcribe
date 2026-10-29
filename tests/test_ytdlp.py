@@ -93,6 +93,36 @@ class OptionTests(unittest.TestCase):
         self.assertEqual(options["outtmpl"], "100_ done.%(ext)s")
 
 
+class UrlNormalizationTests(unittest.TestCase):
+    def test_douyin_modal_links_become_video_pages(self):
+        for url in (
+            "https://www.douyin.com/jingxuan?modal_id=7674298769814342966",
+            "https://www.douyin.com/discover?modal_id=7674298769814342966&vid=1",
+            "https://douyin.com/user/abc?modal_id=7674298769814342966",
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(
+                    ytdlp_utils.normalize_url(url),
+                    "https://www.douyin.com/video/7674298769814342966",
+                )
+
+    def test_canonical_and_other_urls_are_unchanged(self):
+        for url in (
+            "https://www.douyin.com/video/7674298769814342966",
+            "https://www.douyin.com/video/7674298769814342966?foo=bar",
+            "https://www.douyin.com/user/MS4wLjABAAAA",
+            "https://example.com/jingxuan?modal_id=123",
+            "https://notdouyin.com/feed?modal_id=123",
+            "",
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(ytdlp_utils.normalize_url(url), url.strip())
+
+    def test_non_numeric_modal_id_is_left_alone(self):
+        url = "https://www.douyin.com/jingxuan?modal_id=abc"
+        self.assertEqual(ytdlp_utils.normalize_url(url), url)
+
+
 class DownloadTests(unittest.TestCase):
     def test_audio_download_returns_the_wav(self):
         module, state = fake_module()
@@ -107,6 +137,19 @@ class DownloadTests(unittest.TestCase):
             self.assertEqual(result["duration"], 93.5)
             self.assertTrue(Path(result["path"]).is_file())
             self.assertEqual(len(state["options"]), 1)
+
+    def test_douyin_modal_url_is_normalized_before_download(self):
+        module, _ = fake_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.dict(sys.modules, {"yt_dlp": module}):
+                result = ytdlp_utils.download_with_ytdlp(
+                    "https://www.douyin.com/jingxuan?modal_id=7674298769814342966",
+                    tmp,
+                )
+        self.assertEqual(
+            result["url"],
+            "https://www.douyin.com/video/7674298769814342966",
+        )
 
     def test_video_download_returns_the_mp4(self):
         module, _ = fake_module(output_name="测试视频_123.mp4")

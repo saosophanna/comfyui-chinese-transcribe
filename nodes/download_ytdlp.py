@@ -68,7 +68,7 @@ class ChineseTranscribeYtDlp:
         }
 
     def download(self, url, mode, output_dir, filename="", cookies_file=""):
-        text = to_text(url).strip()
+        text = ytdlp_utils.normalize_url(url)
         if not text:
             raise ValueError(
                 "url is empty. Paste the platform page URL (not a video-only "
